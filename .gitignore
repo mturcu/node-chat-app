@@ -1,0 +1,5 @@
+node_modules/
+mongodump/
+package-lock.json
+node-chat-app.code-workspace
+pushall.sh
