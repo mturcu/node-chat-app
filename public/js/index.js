@@ -2,6 +2,21 @@
 
 var socket = io();
 
+var scrollToBottom = force => {
+  // Selectors
+  let messages = jQuery('#messages');
+  let newMsg = messages.children('li:last-child');
+  // Heights
+  let clientHeight = messages.prop('clientHeight');
+  let scrollTop = messages.prop('scrollTop');
+  let scrollHeight = messages.prop('scrollHeight');
+  let newMsgHeight = newMsg.innerHeight();
+  let lastMsgHeight = newMsg.prev().innerHeight();
+  if ((clientHeight + scrollTop + newMsgHeight + lastMsgHeight >= scrollHeight) || force) {
+    messages.scrollTop(scrollHeight);
+  }
+};
+
 socket.on('connect', () => {
   console.log('Connected to server');
 });
@@ -20,10 +35,10 @@ socket.on('newMessage', msg => {
     createdAt: fTime(msg.createdAt)
   });
   jQuery('#messages').append(html);
+  scrollToBottom();
 });
 
 socket.on('newLocationMessage', msg => {
-  // let a = jQuery('<a target="_blank">My current location</a>');
   let template = jQuery('#location-message-template').html();
   let html = Mustache.render(template, {
     from: msg.from,
@@ -31,6 +46,7 @@ socket.on('newLocationMessage', msg => {
     createdAt: fTime(msg.createdAt)
   });
   jQuery('#messages').append(html);
+  scrollToBottom();
 });
 
 jQuery('#message-form').on('submit', e => {
@@ -39,14 +55,15 @@ jQuery('#message-form').on('submit', e => {
   socket.emit('createMessage', {
     from: 'User',
     text: msgTextBox.val()
-  }, data => {
+  }, () => {
     msgTextBox.val('');
-    // console.log(data, 'Got new message');
+    scrollToBottom(true);
   });
 });
 
 var locationButton = jQuery('#send-location');
 locationButton.on('click', () => {
+  scrollToBottom(true);
   if (!navigator.geolocation) {
     return alert('Geolocation is not supported by your browser');
   }
