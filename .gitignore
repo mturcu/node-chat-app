@@ -4,4 +4,3 @@ config/config.json
 package-lock.json
 node-chat-app.code-workspace
 pushall.sh
-bfg.jar
