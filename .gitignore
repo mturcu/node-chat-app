@@ -1,5 +1,6 @@
 node_modules/
 mongodump/
+playground/
 config/config.json
 package-lock.json
 node-chat-app.code-workspace
