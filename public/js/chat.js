@@ -19,13 +19,32 @@ var scrollToBottom = force => {
 
 socket.on('connect', () => {
   console.log('Connected to server');
+  var params = jQuery.deparam(window.location.search);
+  socket.emit('join', params, err => {
+    if (err) {
+      alert(err);
+      window.location.href = '/';
+    }
+    else {
+      console.log('No join error');
+    }
+  });
 });
 
 socket.on('disconnect', () => {
   console.log('Disconnected from server');
 });
 
-var fTime = time => moment(time).format('h:mm a');
+socket.on('updateUserList', (users, room) => {
+  // console.log('Room: ', room);
+  jQuery('#room-name').text(`People in [${room}]`);
+  // console.log('Users list', users);
+  let ul = jQuery('<ul style="list-style-type:none"></ul>');
+  users.forEach(user => ul.append(jQuery('<li></li>').text(user)));
+  jQuery('#users').html(ul);
+});
+
+var fTime = time => moment(time).format('H:mm:ss');
 
 socket.on('newMessage', msg => {
   let template = jQuery('#message-template').html();
@@ -52,18 +71,19 @@ socket.on('newLocationMessage', msg => {
 jQuery('#message-form').on('submit', e => {
   e.preventDefault();
   let msgTextBox = jQuery('[name=message]');
-  socket.emit('createMessage', {
-    from: 'User',
-    text: msgTextBox.val()
-  }, () => {
-    msgTextBox.val('');
-    scrollToBottom(true);
-  });
+  if (msgTextBox.val() != '') {
+    socket.emit('createMessage', {
+      text: msgTextBox.val()
+    }, () => {
+      msgTextBox.val('');
+      scrollToBottom(true);
+    });
+  };
+  msgTextBox.focus();
 });
 
 var locationButton = jQuery('#send-location');
 locationButton.on('click', () => {
-  scrollToBottom(true);
   if (!navigator.geolocation) {
     return alert('Geolocation is not supported by your browser');
   }
@@ -74,8 +94,10 @@ locationButton.on('click', () => {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude
     });
+    scrollToBottom(true);
+    jQuery('[name=message]').focus();
   }, () => {
-    alert('Unable to fetch location.');
+    alert('Unable to fetch location');
     locationButton.removeAttr('disabled').text('Send location');
   })
 });

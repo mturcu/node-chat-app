@@ -24,5 +24,6 @@ module.exports =
   generateLocationMessage,
   admin: 'admin',
   welcome: 'Welcome to the chat app', 
-  newcon: 'New user joined the chat'
+  newcon: ' joined the chat room ',
+  cutcon: ' left the chat room '
 };

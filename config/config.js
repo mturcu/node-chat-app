@@ -10,10 +10,10 @@ if (env === 'development' || env === 'test') {
 }
 
 module.exports = {
-  authHeader: 'x-auth',
-  access: 'auth',
+  // authHeader: 'x-auth',
+  // access: 'auth',
   publicPath: path.join(__dirname, '../public'),
-  secret: process.env.JWT_SECRET,
-  port: process.env.PORT,
-  mongoUrl: process.env.MONGODB_URI
+  // secret: process.env.JWT_SECRET,
+  // mongoUrl: process.env.MONGODB_URI,
+  port: process.env.PORT
 }
