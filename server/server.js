@@ -17,12 +17,29 @@ var users = new Users();
 
 app.use(express.static(publicPath));
 
+app.get('/rooms', (req, res) => {
+  let existingRooms = [];
+  let rooms = io.sockets.adapter.rooms;
+  if (rooms) {
+    for (let room in rooms) {
+      if (!rooms[room].sockets.hasOwnProperty(room)) {
+        existingRooms.push(room);
+      }
+    }
+  }
+  res.send(existingRooms);
+});
+
 io.on('connection', socket => {
-  console.log('New user'+newcon);
+  console.log('New connection');
   
   socket.on('join', (params, callback) => {
     if (!isRealString(params.name) || !isRealString(params.room)) {
       return callback('Name and room name are required');
+    }
+    params.room = params.room.toUpperCase();
+    if (users.getUserList(params.room).findIndex(item => params.name.toLowerCase() === item.toLowerCase()) !== -1) {
+      return callback(`Username "${params.name}" already taken, please choose another`);
     }
     socket.join(params.room); //socket.leave(params.room)
     users.removeUser(socket.id);
@@ -38,7 +55,7 @@ io.on('connection', socket => {
     if (user && isRealString(msg.text)) {
       io.to(user.room).emit('newMessage', generateMessage(user.name, msg.text));
     }
-    callback(); //'Server acknowlegement:');
+    callback(); // optional: ('Server acknowlegement:')
   });
 
   socket.on('createLocationMessage', coords => {
@@ -53,7 +70,7 @@ io.on('connection', socket => {
     if (user) {
       io.to(user.room).emit('updateUserList', users.getUserList(user.room));
       io.to(user.room).emit('newMessage', generateMessage(admin, user.name+cutcon+user.room));
-      console.log('User was disconnected');
+      console.log(`Session ${socket.id} disconnected`);
     }
   });
 

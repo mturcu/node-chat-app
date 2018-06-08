@@ -36,9 +36,7 @@ socket.on('disconnect', () => {
 });
 
 socket.on('updateUserList', (users, room) => {
-  // console.log('Room: ', room);
   jQuery('#room-name').text(`People in [${room}]`);
-  // console.log('Users list', users);
   let ul = jQuery('<ul style="list-style-type:none"></ul>');
   users.forEach(user => ul.append(jQuery('<li></li>').text(user)));
   jQuery('#users').html(ul);

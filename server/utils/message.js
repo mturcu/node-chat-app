@@ -22,7 +22,7 @@ module.exports =
 {
   generateMessage,
   generateLocationMessage,
-  admin: 'admin',
+  admin: 'ChatBot',
   welcome: 'Welcome to the chat app', 
   newcon: ' joined the chat room ',
   cutcon: ' left the chat room '
