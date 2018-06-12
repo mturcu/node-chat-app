@@ -1,17 +1,17 @@
 "use strict";
 
-var socket = io();
+const socket = io();
 
-var scrollToBottom = force => {
+const scrollToBottom = force => {
   // Selectors
-  let messages = jQuery('#messages');
-  let newMsg = messages.children('li:last-child');
+  const messages = jQuery('#messages');
+  const newMsg = messages.children('li:last-child');
   // Heights
-  let clientHeight = messages.prop('clientHeight');
-  let scrollTop = messages.prop('scrollTop');
-  let scrollHeight = messages.prop('scrollHeight');
-  let newMsgHeight = newMsg.innerHeight();
-  let lastMsgHeight = newMsg.prev().innerHeight();
+  const clientHeight = messages.prop('clientHeight');
+  const scrollTop = messages.prop('scrollTop');
+  const scrollHeight = messages.prop('scrollHeight');
+  const newMsgHeight = newMsg.innerHeight();
+  const lastMsgHeight = newMsg.prev().innerHeight();
   if ((clientHeight + scrollTop + newMsgHeight + lastMsgHeight >= scrollHeight) || force) {
     messages.scrollTop(scrollHeight);
   }
@@ -19,7 +19,7 @@ var scrollToBottom = force => {
 
 socket.on('connect', () => {
   console.log('Connected to server');
-  var params = jQuery.deparam(window.location.search);
+  const params = jQuery.deparam(window.location.search);
   socket.emit('join', params, err => {
     if (err) {
       alert(err);
@@ -42,11 +42,11 @@ socket.on('updateUserList', (users, room) => {
   jQuery('#users').html(ul);
 });
 
-var fTime = time => moment(time).format('H:mm:ss');
+const fTime = time => moment(time).format('H:mm:ss');
 
 socket.on('newMessage', msg => {
-  let template = jQuery('#message-template').html();
-  let html = Mustache.render(template, {
+  const template = jQuery('#message-template').html();
+  const html = Mustache.render(template, {
     text: msg.text,
     from: msg.from,
     createdAt: fTime(msg.createdAt)
@@ -56,8 +56,8 @@ socket.on('newMessage', msg => {
 });
 
 socket.on('newLocationMessage', msg => {
-  let template = jQuery('#location-message-template').html();
-  let html = Mustache.render(template, {
+  const template = jQuery('#location-message-template').html();
+  const html = Mustache.render(template, {
     from: msg.from,
     url: msg.url,
     createdAt: fTime(msg.createdAt)
@@ -68,19 +68,14 @@ socket.on('newLocationMessage', msg => {
 
 jQuery('#message-form').on('submit', e => {
   e.preventDefault();
-  let msgTextBox = jQuery('[name=message]');
-  if (msgTextBox.val() != '') {
-    socket.emit('createMessage', {
-      text: msgTextBox.val()
-    }, () => {
-      msgTextBox.val('');
-      scrollToBottom(true);
-    });
-  };
+  const msgTextBox = jQuery('[name=message]');
+  if (msgTextBox.val().trim().length > 0)
+    socket.emit('createMessage', { text: msgTextBox.val() }, () => scrollToBottom(true));
+  msgTextBox.val('');
   msgTextBox.focus();
 });
 
-var locationButton = jQuery('#send-location');
+const locationButton = jQuery('#send-location');
 locationButton.on('click', () => {
   if (!navigator.geolocation) {
     return alert('Geolocation is not supported by your browser');

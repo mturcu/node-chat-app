@@ -10,16 +10,16 @@ const
   {isRealString} = require('./utils/validation'),
   {port, publicPath} = require('../config/config');
 
-var app = express();
-var server = http.createServer(app);
-var io = socketIO(server);
-var users = new Users();
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+let users = new Users();
 
 app.use(express.static(publicPath));
 
 app.get('/rooms', (req, res) => {
   let existingRooms = [];
-  let rooms = io.sockets.adapter.rooms;
+  const rooms = io.sockets.adapter.rooms;
   if (rooms) {
     for (let room in rooms) {
       if (!rooms[room].sockets.hasOwnProperty(room)) {
@@ -37,7 +37,7 @@ io.on('connection', socket => {
     if (!isRealString(params.name) || !isRealString(params.room)) {
       return callback('Name and room name are required');
     }
-    params.room = params.room.toUpperCase();
+    params.room = params.room.toLowerCase();
     if (users.getUserList(params.room).findIndex(item => params.name.toLowerCase() === item.toLowerCase()) !== -1) {
       return callback(`Username "${params.name}" already taken, please choose another`);
     }
@@ -51,7 +51,7 @@ io.on('connection', socket => {
   });
 
   socket.on('createMessage', (msg, callback) => {
-    let user = users.getUser(socket.id);
+    const user = users.getUser(socket.id);
     if (user && isRealString(msg.text)) {
       io.to(user.room).emit('newMessage', generateMessage(user.name, msg.text));
     }
@@ -59,14 +59,14 @@ io.on('connection', socket => {
   });
 
   socket.on('createLocationMessage', coords => {
-    let user = users.getUser(socket.id);
+    const user = users.getUser(socket.id);
     if (user) {
       io.emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     }
   });
 
   socket.on('disconnect', () => {
-    let user = users.removeUser(socket.id);
+    const user = users.removeUser(socket.id);
     if (user) {
       io.to(user.room).emit('updateUserList', users.getUserList(user.room));
       io.to(user.room).emit('newMessage', generateMessage(admin, user.name+cutcon+user.room));
